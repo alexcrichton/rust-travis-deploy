@@ -21,7 +21,7 @@ fn main() {
     let _bomb = OnDrop(|| {
         drop(fs::remove_file(&socket));
     });
-    run(Command::new("ssh-agent").arg("-a").arg(&socket))
+    run(Command::new("ssh-agent").arg("-a").arg(&socket));
     while UnixStream::connect(&socket).is_err() {
         std::thread::sleep(std::time::Duration::from_millis(5));
     }
