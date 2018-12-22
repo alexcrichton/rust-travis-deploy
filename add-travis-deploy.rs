@@ -75,8 +75,11 @@ matrix:
       rust: nightly
       script:
         - cargo doc --no-deps
-        - curl
+        - curl -O https://raw.githubusercontent.com/alexcrichton/rust-travis-deploy/master/travis-deploy.rs
+        - rustc travis-deploy.rs
         - (cd target/doc && ../../travis-deploy)
+
+");
 }
 
 fn run(cmd: &mut Command) {
