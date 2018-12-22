@@ -74,9 +74,12 @@ matrix:
       rust: nightly
       script:
         - cargo doc --no-deps
-        - curl -O https://raw.githubusercontent.com/alexcrichton/rust-travis-deploy/master/travis-deploy.rs
-        - rustc travis-deploy.rs
-        - (cd target/doc && ../../travis-deploy)
+      deploy:
+        provider: script
+        script: curl -LsSf https://git.io/fhJ8n | rustc - && (cd target/doc && ../../rust_out)
+        skip_cleanup: true
+        on:
+          branch: master
 
 ");
 }
