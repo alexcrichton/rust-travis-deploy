@@ -9,6 +9,14 @@ fn main() {
     let slug = env::var("TRAVIS_REPO_SLUG").unwrap();
     let key = env::var("GITHUB_DEPLOY_KEY").unwrap();
 
+    match env::var("TRAVIS_BRANCH") {
+        Ok(ref s) if s == "master" => {}
+        _ => {
+            println!("not the master branch, skipping deploy");
+            return
+        }
+    }
+
     let socket = "/tmp/.github-deploy-socket";
     let _bomb = OnDrop(|| {
         drop(fs::remove_file(&socket));
