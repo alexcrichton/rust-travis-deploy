@@ -21,15 +21,7 @@ fn main() {
     let _bomb = OnDrop(|| {
         drop(fs::remove_file(&socket));
     });
-    let mut child = Command::new("ssh-agent")
-        .arg("-D")
-        .arg("-a").arg(&socket)
-        .spawn()
-        .unwrap();
-    let _bomb = OnDrop(|| {
-        println!("kill: {:?}", child.kill());
-        println!("wait {:?}", child.wait());
-    });
+    run(Command::new("ssh-agent").arg("-a").arg(&socket))
     while UnixStream::connect(&socket).is_err() {
         std::thread::sleep(std::time::Duration::from_millis(5));
     }
