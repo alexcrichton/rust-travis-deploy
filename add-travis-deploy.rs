@@ -51,19 +51,18 @@ fn main() {
         \"read_only\":false\
     }}", date, pubkey.trim());
 
-    run(Command::new("curl")
-        .arg("-i")
-        .arg("-H").arg("Accept: application/vnd.github.v3+json")
-        .arg("-H").arg(format!("Authorization: token {}", gh_token))
-        .arg(format!("https://api.github.com/repos/{}/keys", slug))
-        .arg("-d").arg(&data));
-
     run(Command::new("travis")
         .arg("env")
         .arg("set")
         .arg("GITHUB_DEPLOY_KEY")
         .arg(key));
 
+    run(Command::new("curl")
+        .arg("-i")
+        .arg("-H").arg("Accept: application/vnd.github.v3+json")
+        .arg("-H").arg(format!("Authorization: token {}", gh_token))
+        .arg(format!("https://api.github.com/repos/{}/keys", slug))
+        .arg("-d").arg(&data));
 
     println!("
 
