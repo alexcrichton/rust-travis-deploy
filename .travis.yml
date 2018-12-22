@@ -1,0 +1,7 @@
+matrix:
+  include:
+    - rust: stable
+
+script:
+  - rustc add-travis-deploy.rs
+  - rustc travis-deploy.rs
