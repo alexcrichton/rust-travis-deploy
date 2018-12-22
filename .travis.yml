@@ -3,10 +3,6 @@ language: rust
 matrix:
   include:
     - rust: stable
-      script:
-        - ssh -V
-        - ssh-agent --help
-    - rust: stable
 
 script:
   - rustc add-travis-deploy.rs
