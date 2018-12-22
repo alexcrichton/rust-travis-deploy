@@ -18,9 +18,6 @@ fn main() {
     }
 
     let socket = "/tmp/.github-deploy-socket";
-    let _bomb = OnDrop(|| {
-        drop(fs::remove_file(&socket));
-    });
     run(Command::new("ssh-agent").arg("-a").arg(&socket));
     while UnixStream::connect(&socket).is_err() {
         std::thread::sleep(std::time::Duration::from_millis(5));
@@ -66,12 +63,4 @@ fn run(cmd: &mut Command) {
     println!("{:?}", cmd);
     let status = cmd.status().unwrap();
     assert!(status.success());
-}
-
-struct OnDrop<F: FnMut()>(F);
-
-impl<F: FnMut()> Drop for OnDrop<F> {
-    fn drop(&mut self) {
-        (self.0)();
-    }
 }
