@@ -54,6 +54,7 @@ fn main() {
     run(Command::new("travis")
         .arg("env")
         .arg("set")
+        .arg("--com")
         .arg("GITHUB_DEPLOY_KEY")
         .arg(key));
 
