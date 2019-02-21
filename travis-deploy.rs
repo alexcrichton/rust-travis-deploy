@@ -3,7 +3,6 @@ use std::fs;
 use std::io::{Read, Write};
 use std::os::unix::net::UnixStream;
 use std::os::unix::prelude::*;
-use std::path::PathBuf;
 use std::process::{Command, Stdio};
 
 fn main() {
@@ -42,18 +41,6 @@ fn main() {
         .unwrap();
     let msg = format!("Deploy {} to gh-pages", sha);
 
-    let keyscan = Command::new("ssh-keyscan")
-        .arg("-H")
-        .arg("github.com")
-        .stderr(Stdio::piped())
-        .output()
-        .unwrap();
-    assert!(keyscan.status.success());
-    let keyscan = String::from_utf8_lossy(&keyscan.stdout);
-    let file = PathBuf::from(env::var("HOME").unwrap()).join(".ssh/known_hosts");
-    let contents = fs::read_to_string(&file).unwrap();
-    fs::write(file, format!("{}\n{}", contents, keyscan)).unwrap();
-
     drop(fs::remove_dir_all(".git"));
     run(Command::new("git").arg("init"));
     run(Command::new("git").arg("config").arg("user.name").arg("Deploy from CI"));
@@ -64,6 +51,7 @@ fn main() {
         .arg("push")
         .arg(format!("git@github.com:{}", slug))
         .arg("master:gh-pages")
+        .env("GIT_SSH_COMMAND", "ssh -o StrictHostKeyChecking=no")
         .env("SSH_AUTH_SOCK", &socket)
         .arg("-f"));
 }
