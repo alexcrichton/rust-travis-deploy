@@ -46,17 +46,21 @@ fn main() {
     fs::remove_file("_ssh_keygen_tmp_out.pub").unwrap();
 
     let data = format!("{{\
-        \"title\":\"travis deploy key {}\",\
+        \"title\":\"CI deploy key {}\",\
         \"key\":\"{}\",\
         \"read_only\":false\
     }}", date, pubkey.trim());
 
-    run(Command::new("travis")
-        .arg("env")
-        .arg("set")
-        .arg("--com")
-        .arg("GITHUB_DEPLOY_KEY")
-        .arg(key));
+    if std::path::Path::new(".travis.yml").exists() {
+        run(Command::new("travis")
+            .arg("env")
+            .arg("set")
+            .arg("--com")
+            .arg("GITHUB_DEPLOY_KEY")
+            .arg(key));
+    } else {
+        println!("GITHUB_DEPLOY_KEY={}", key);
+    }
 
     run(Command::new("curl")
         .arg("-i")
@@ -81,6 +85,17 @@ matrix:
         skip_cleanup: true
         on:
           branch: master
+
+... or
+
+- job: docs
+  steps:
+    - template: ci/azure-install-rust.yml
+    - script: cargo doc --no-deps --all-features
+    - script: curl -LsSf https://git.io/fhJ8n | rustc - && (cd target/doc && ../../rust_out)
+      condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+      env:
+        GITHUB_DEPLOY_KEY: $(GITHUB_DEPLOY_KEY)
 
 ");
 }
