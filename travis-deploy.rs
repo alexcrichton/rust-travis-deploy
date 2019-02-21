@@ -6,7 +6,9 @@ use std::os::unix::prelude::*;
 use std::os::unix::net::UnixStream;
 
 fn main() {
-    let slug = env::var("TRAVIS_REPO_SLUG").unwrap();
+    let slug = env::var("TRAVIS_REPO_SLUG")
+        .or(env::var("BUILD_REPOSITORY_ID"))
+        .unwrap();
     let key = env::var("GITHUB_DEPLOY_KEY").unwrap();
 
     let socket = "/tmp/.github-deploy-socket";
@@ -34,12 +36,14 @@ fn main() {
         .env("SSH_AUTH_SOCK", &socket));
     fs::remove_file(&path).unwrap();
 
-    let sha = env::var("TRAVIS_COMMIT").unwrap();
+    let sha = env::var("TRAVIS_COMMIT")
+        .or(env::var("BUILD_SOURCEVERSION"))
+        .unwrap();
     let msg = format!("Deploy {} to gh-pages", sha);
 
     drop(fs::remove_dir_all(".git"));
     run(Command::new("git").arg("init"));
-    run(Command::new("git").arg("config").arg("user.name").arg("Deploy from Travis CI"));
+    run(Command::new("git").arg("config").arg("user.name").arg("Deploy from CI"));
     run(Command::new("git").arg("config").arg("user.email").arg(""));
     run(Command::new("git").arg("add").arg("."));
     run(Command::new("git").arg("commit").arg("-m").arg(&msg));
